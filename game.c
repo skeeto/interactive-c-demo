@@ -11,7 +11,7 @@ static void game_step(void)
     printf("rand() == 0x%08x\n", rand());
 }
 
-struct game_api GAME_API = {
+const struct game_api GAME_API = {
     .init = game_init,
     .step = game_step
 };

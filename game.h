@@ -5,4 +5,4 @@ struct game_api {
     void (*step)(void);
 };
 
-extern struct game_api GAME_API;
+extern const struct game_api GAME_API;

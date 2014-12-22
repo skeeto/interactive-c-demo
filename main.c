@@ -12,14 +12,17 @@ struct game {
     void *handle;
     ino_t id;
     struct game_api api;
+    struct game_state *state;
 };
 
 static void game_load(struct game *game)
 {
     struct stat attr;
     if ((stat(GAME_LIBRARY, &attr) == 0) && (game->id != attr.st_ino)) {
-        if (game->handle)
+        if (game->handle) {
+            game->api.unload(game->state);
             dlclose(game->handle);
+        }
         void *handle = dlopen(GAME_LIBRARY, RTLD_NOW);
         if (handle) {
             game->handle = handle;
@@ -27,7 +30,9 @@ static void game_load(struct game *game)
             const struct game_api *api = dlsym(game->handle, "GAME_API");
             if (api != NULL) {
                 game->api = *api;
-                game->api.init();
+                if (game->state == NULL)
+                    game->state = game->api.init();
+                game->api.reload(game->state);
             } else {
                 dlclose(game->handle);
                 game->handle = NULL;
@@ -40,14 +45,27 @@ static void game_load(struct game *game)
     }
 }
 
+void game_unload(struct game *game)
+{
+    if (game->handle) {
+        game->api.finalize(game->state);
+        game->state = NULL;
+        dlclose(game->handle);
+        game->handle = NULL;
+        game->id = 0;
+    }
+}
+
 int main(void)
 {
     struct game game = {0};
     for (;;) {
         game_load(&game);
         if (game.handle)
-            game.api.step();
+            if (!game.api.step(game.state))
+                break;
         usleep(100000);
     }
+    game_unload(&game);
     return 0;
 }

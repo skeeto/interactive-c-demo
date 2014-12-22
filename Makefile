@@ -1,17 +1,16 @@
-CFLAGS = -std=c99 -Wall -O0 -g3
-LDLIBS = -ldl
+CFLAGS  = -std=c99 -Wall -O0 -g3 -fPIC
+LDLIBS  = -ldl
 
 all : main libgame.so
 
 main : main.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $< $(LDLIBS)
 
 libgame.so : game.c
-	$(CC) -shared -fPIC -o tmp_$@ $<
-	mv tmp_$@ $@
-	#$(CC) -shared -fPIC -o $@ $<
+	$(CC) $(CFLAGS) -shared $(LDFLAGS) -o $@ $< $(LDLIBS)
 
 test : main libgame.so
 	./$<
 
 clean :
-	$(RM) libgame.so main
+	$(RM) *.o *.so main

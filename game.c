@@ -1,11 +1,17 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include "game.h"
 
-static int xrand()
+static void game_init(void)
 {
-    return 6;
 }
 
-void step(void)
+static void game_step(void)
 {
     printf("rand() == 0x%08x\n", rand());
 }
+
+struct game_api GAME_API = {
+    .init = game_init,
+    .step = game_step
+};

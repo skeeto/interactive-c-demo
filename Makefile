@@ -1,4 +1,4 @@
-CFLAGS  = -std=c99 -Wall -O3 -g3 -fPIC
+CFLAGS  = -std=c99 -pedantic -Wall -O2 -fPIC
 LDLIBS  = -ldl -lncurses
 
 all : main libgame.so

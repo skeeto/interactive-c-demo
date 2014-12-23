@@ -69,8 +69,8 @@ static void game_unload(struct game_state *state)
 
 static void game_finalize(struct game_state *state)
 {
-    endwin();
     free(state);
+    endwin();
 }
 
 static int count(struct game_state *state, int x, int y)

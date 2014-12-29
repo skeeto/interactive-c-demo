@@ -78,7 +78,7 @@ static int count(struct game_state *state, int x, int y)
     int sum = 0;
     for (int yy = -1; yy <= 1; yy++)
         for (int xx = -1; xx <= 1; xx++)
-            if ((xx != 0 || yy != 0))
+            if (xx || yy)
                 sum += get(state,
                            (x + xx + state->width) % state->width,
                            (y + yy + state->height) % state->height);
@@ -101,7 +101,7 @@ static void draw(struct game_state *state)
     move(0, 0);
     for (int y = 0; y < state->height; y++)
         for (int x = 0; x < state->width; x++)
-            addch(get(state, x, y) ? '0' : ' ');
+            addch(get(state, x, y) ? ' '|A_REVERSE : ' ');
     refresh();
 }
 

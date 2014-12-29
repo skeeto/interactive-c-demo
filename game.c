@@ -101,7 +101,7 @@ static void draw(struct game_state *state)
     move(0, 0);
     for (int y = 0; y < state->height; y++)
         for (int x = 0; x < state->width; x++)
-            addch(get(state, x, y) ? '0' : ' ');
+            addch(get(state, x, y) ? ' ' | A_REVERSE : ' ');
     refresh();
 }
 

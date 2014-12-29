@@ -78,7 +78,7 @@ static int count(struct game_state *state, int x, int y)
     int sum = 0;
     for (int yy = -1; yy <= 1; yy++)
         for (int xx = -1; xx <= 1; xx++)
-            if ((xx != 0 || yy != 0))
+            if (xx != 0 || yy != 0)
                 sum += get(state,
                            (x + xx + state->width) % state->width,
                            (y + yy + state->height) % state->height);

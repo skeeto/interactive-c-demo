@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dlfcn.h>
+#include <ncurses.h>
 #include "game.h"
 
 const char *GAME_LIBRARY = "./libgame.so";
@@ -56,9 +57,25 @@ void game_unload(struct game *game)
     }
 }
 
+void ncurses_start(void)
+{
+    initscr();
+    raw();
+    timeout(0);
+    noecho();
+    curs_set(0);
+    keypad(stdscr, TRUE);
+}
+
+void ncurses_end(void)
+{
+    endwin();
+}
+
 int main(void)
 {
     struct game game = {0};
+    ncurses_start();
     for (;;) {
         game_load(&game);
         if (game.handle)
@@ -67,5 +84,6 @@ int main(void)
         usleep(100000);
     }
     game_unload(&game);
+    ncurses_end();
     return 0;
 }

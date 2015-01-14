@@ -38,13 +38,6 @@ static void randomize(struct game_state *state)
 
 static struct game_state *game_init()
 {
-    initscr();
-    raw();
-    timeout(0);
-    noecho();
-    curs_set(0);
-    keypad(stdscr, TRUE);
-
     int width, height;
     getmaxyx(stdscr, height, width);
     struct game_state *state = malloc(sizeof(*state) + width * height * 2);
@@ -70,7 +63,6 @@ static void game_unload(struct game_state *state)
 static void game_finalize(struct game_state *state)
 {
     free(state);
-    endwin();
 }
 
 static int count(struct game_state *state, int x, int y)

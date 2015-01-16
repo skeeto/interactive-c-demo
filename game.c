@@ -38,39 +38,38 @@ static void randomize(struct game_state *state)
 
 static struct game_state *game_init()
 {
+    int width, height;
+    initscr();  // peek at terminal size
+    getmaxyx(stdscr, height, width);
+    endwin();
+    struct game_state *state = malloc(sizeof(*state) + width * height * 2);
+    state->select = 0;
+    state->width = width;
+    state->height = height;
+    randomize(state);
+    return state;
+}
+
+static void game_reload(struct game_state *state)
+{
     initscr();
     raw();
     timeout(0);
     noecho();
     curs_set(0);
     keypad(stdscr, TRUE);
-
-    int width, height;
-    getmaxyx(stdscr, height, width);
-    struct game_state *state = malloc(sizeof(*state) + width * height * 2);
-    state->select = 0;
-    state->width = width;
-    state->height = height;
-    randomize(state);
     erase();
     refresh();
-    return state;
-}
-
-static void game_reload(struct game_state *state)
-{
-    /* Nothing */
 }
 
 static void game_unload(struct game_state *state)
 {
-    /* Nothing */
+    endwin();
 }
 
 static void game_finalize(struct game_state *state)
 {
     free(state);
-    endwin();
 }
 
 static int count(struct game_state *state, int x, int y)

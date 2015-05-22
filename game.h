@@ -32,4 +32,6 @@ struct game_api {
     bool (*step)(struct game_state *state);
 };
 
+#ifndef _MSC_VER
 extern const struct game_api GAME_API;
+#endif

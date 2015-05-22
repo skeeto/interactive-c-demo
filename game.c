@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include <ncurses.h>
+#include "rlutil.h"
 #include "game.h"
 
 struct game_state {
@@ -8,21 +8,21 @@ struct game_state {
     char cells[];
 };
 
-static inline char
+static char
 get(struct game_state *state, int x, int y)
 {
     return state->cells[state->select * state->width * state->height +
                         y * state->width + x];
 }
 
-static inline void
+static void
 set(struct game_state *state, int x, int y, char c)
 {
     state->cells[!state->select * state->width * state->height +
                  y * state->width + x] = c;
 }
 
-static inline void
+static void
 flip(struct game_state *state)
 {
     state->select = !state->select;
@@ -39,9 +39,9 @@ static void randomize(struct game_state *state)
 static struct game_state *game_init()
 {
     int width, height;
-    initscr();  // peek at terminal size
-    getmaxyx(stdscr, height, width);
-    endwin();
+    cls();
+    width = tcols();
+    height = trows();
     struct game_state *state = malloc(sizeof(*state) + width * height * 2);
     state->select = 0;
     state->width = width;
@@ -52,19 +52,11 @@ static struct game_state *game_init()
 
 static void game_reload(struct game_state *state)
 {
-    initscr();
-    raw();
-    timeout(0);
-    noecho();
-    curs_set(0);
-    keypad(stdscr, TRUE);
-    erase();
-    refresh();
+    cls();
 }
 
 static void game_unload(struct game_state *state)
 {
-    endwin();
 }
 
 static void game_finalize(struct game_state *state)
@@ -97,15 +89,17 @@ static void iterate(struct game_state *state)
 
 static void draw(struct game_state *state)
 {
-    move(0, 0);
+    gotoxy(0, 0);
     for (int y = 0; y < state->height; y++)
-        for (int x = 0; x < state->width; x++)
-            addch(get(state, x, y) ? ' ' | A_REVERSE : ' ');
-    refresh();
+        for (int x = 0; x < state->width; x++) {
+            gotoxy( x, y ); 
+            putch( get(state, x, y) ? 'o' : '.' );
+        }
 }
 
 static bool game_step(struct game_state *state)
 {
+    if(kbhit())
     switch (getch()) {
     case 'r':
         randomize(state);
@@ -118,6 +112,9 @@ static bool game_step(struct game_state *state)
     return true;
 }
 
+#ifdef _MSC_VER
+__declspec(dllexport)
+#endif
 const struct game_api GAME_API = {
     .init = game_init,
     .reload = game_reload,

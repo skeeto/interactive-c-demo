@@ -1,4 +1,4 @@
-# Interactive C Demo
+# Demo of a Great language-'C'
 
 * [Interactive Programming in C](http://nullprogram.com/blog/2014/12/23/)
 

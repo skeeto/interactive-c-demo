@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include "game.h"
 
-const char *GAME_LIBRARY = "./libgame.so";
+char *global_game_library_file_name = 0;
 
 struct game {
     void *handle;
@@ -30,7 +30,7 @@ static void game_load(struct game *game)
             game->api.unload(game->state);
             dlclose(game->handle);
         }
-        void *handle = dlopen(GAME_LIBRARY, RTLD_NOW);
+        void *handle = dlopen(global_game_library_file_name, RTLD_NOW);
         if (handle) {
             game->handle = handle;
             const struct game_api *api = dlsym(game->handle, "GAME_API");
@@ -61,8 +61,19 @@ void game_unload(struct game *game)
     }
 }
 
-int main(void)
-{
+int main(int argc, char *argv[]){
+    global_game_library_file_name = "./libgame.so";
+    if(argc > 1){
+        char *target_fname = argv[1];
+        if(access(target_fname, R_OK) != -1){
+            global_game_library_file_name = target_fname;
+        }
+        else{
+            fprintf(stderr, "Unable to load %s\n", target_fname);
+            return -1;
+        }
+    }
+
     struct sigaction act = {0};
     act.sa_handler = *reload_shared_program_library;
     sigaction(SIGUSR1, &act, 0);
@@ -71,8 +82,8 @@ int main(void)
     for (;;) {
         game_load(&game);
         if (game.handle)
-            if (!game.api.step(game.state))
-                break;
+          if (!game.api.step(game.state))
+            break;
         usleep(100000);
     }
     game_unload(&game);

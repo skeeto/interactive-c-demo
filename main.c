@@ -48,6 +48,7 @@ static void game_load(struct game *game)
 void game_unload(struct game *game)
 {
     if (game->handle) {
+        game->api.unload(game->state);
         game->api.finalize(game->state);
         game->state = NULL;
         dlclose(game->handle);

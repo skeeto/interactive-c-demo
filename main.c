@@ -8,51 +8,48 @@
 
 char *global_game_library_file_name = 0;
 
-struct game {
+struct game{
     void *handle;
     struct game_api api;
     struct game_state *state;
 };
 
 static bool global_reload_shared_library = true;
-static void reload_shared_program_library(int signum)
-{
-    if(signum == SIGUSR1)
-    {
+static void reload_shared_program_library(int signum){
+    if(signum == SIGUSR1){
         global_reload_shared_library = true;
     }
 }
 
-static void game_load(struct game *game)
-{
-    if (global_reload_shared_library) {
-        if(game->handle) {
-            game->api.unload(game->state);
-            dlclose(game->handle);
-        }
-        void *handle = dlopen(global_game_library_file_name, RTLD_NOW);
-        if (handle) {
-            game->handle = handle;
-            const struct game_api *api = dlsym(game->handle, "GAME_API");
-            if (api != NULL) {
-                game->api = *api;
-                if (game->state == NULL)
-                    game->state = game->api.init();
-                game->api.reload(game->state);
-            } else {
-                dlclose(game->handle);
-                game->handle = NULL;
+static void game_reload(struct game *game){
+    if(game->handle){
+        game->api.unload(game->state);
+        dlclose(game->handle);
+    }
+
+    void *handle = dlopen(global_game_library_file_name, RTLD_NOW);
+    if(handle){
+        game->handle = handle;
+        const struct game_api *api = dlsym(game->handle, "GAME_API");
+        if(api != NULL){
+            game->api = *api;
+            if(game->state == NULL){
+                game->state = game->api.init();
             }
-        } else {
+            game->api.reload(game->state);
+        }
+        else{
+            dlclose(game->handle);
             game->handle = NULL;
         }
-        global_reload_shared_library = false;
+    }
+    else{
+        game->handle = NULL;
     }
 }
 
-void game_unload(struct game *game)
-{
-    if (game->handle) {
+void game_unload(struct game *game){
+    if(game->handle){
         game->api.unload(game->state);
         game->api.finalize(game->state);
         game->state = NULL;
@@ -79,11 +76,17 @@ int main(int argc, char *argv[]){
     sigaction(SIGUSR1, &act, 0);
 
     struct game game = {0};
-    for (;;) {
-        game_load(&game);
-        if (game.handle)
-          if (!game.api.step(game.state))
-            break;
+    while(true){
+        if(global_reload_shared_library){
+            game_reload(&game);
+            global_reload_shared_library = false;
+        }
+
+        if(game.handle){
+            if(!game.api.step(game.state)){
+                break;
+            }
+        }
         usleep(100000);
     }
     game_unload(&game);

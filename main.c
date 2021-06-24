@@ -6,6 +6,8 @@
 #include <stdbool.h>
 #include "game.h"
 
+#include "reload_patch.c"       // Comment out to disable shared object symbol patching
+
 char *global_game_library_file_name = 0;
 
 struct game{
@@ -29,6 +31,9 @@ static void game_reload(struct game *game){
 
     void *handle = dlopen(global_game_library_file_name, RTLD_NOW);
     if(handle){
+#if ENABLE_RELOAD_PATCH
+        patch_so_symbols(handle);
+#endif
         game->handle = handle;
         const struct game_api *api = dlsym(game->handle, "GAME_API");
         if(api != NULL){

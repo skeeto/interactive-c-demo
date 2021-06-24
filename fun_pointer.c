@@ -9,7 +9,7 @@ struct game_state {
 };
 
 static void f(){
-    printf("f defined on %s:%d 0x%lx\n", __FILE__, __LINE__, (unsigned long int)f);
+    printf("\tf defined on %s:%d 0x%lx\n", __FILE__, __LINE__, (unsigned long int)f);
 }
 
 static struct game_state *game_init() {

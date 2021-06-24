@@ -8,12 +8,11 @@ struct game_state {
     bool should_call_f;
 };
 
-static void g(){
-    printf("g defined on %s:%d 0x%lx\n", __FILE__, __LINE__, (unsigned long int)g);
-}
+char bytes[4096];
 
+__attribute__((noinline))
 static void f(){
-    printf("f defined on %s:%d 0x%lx\n", __FILE__, __LINE__, (unsigned long int)f);
+    printf("\tf defined on %s:%d 0x%lx\n", __FILE__, __LINE__, (unsigned long int)f);
 }
 
 static struct game_state *game_init() {

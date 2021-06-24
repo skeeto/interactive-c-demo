@@ -9,7 +9,8 @@ echo "* Running libfun"
 ./main ./libfun_pointer.so &
 sleep 1
 echo "* Hot-loading alternate libfun"
-mv alternate_libfun_pointer.so libfun_pointer.so
+rm libfun_pointer.so
+cp alternate_libfun_pointer.so libfun_pointer.so
 pkill --signal USR1 main
 sleep 1
 pkill main

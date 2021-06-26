@@ -3,7 +3,7 @@ CFLAGS  = -std=c99 -pedantic $(WARNING_FLAGS) -O2 -fPIC
 
 LDLIBS  = -ldl
 
-all : tags main libgame.so libfun_pointer.so alternate_libfun_pointer.so
+all : main libgame.so libfun_pointer.so alternate_libfun_pointer.so
 
 main : main.c game.h reload_patch.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $< $(LDLIBS)

@@ -8,6 +8,8 @@ struct game_state {
     bool should_call_f;
 };
 
+char bytes[2048];
+
 static void f(){
     printf("\tf defined on %s:%d 0x%lx\n", __FILE__, __LINE__, (unsigned long int)f);
 }

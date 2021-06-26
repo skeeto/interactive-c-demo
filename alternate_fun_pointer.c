@@ -8,12 +8,13 @@ struct game_state {
     bool should_call_f;
 };
 
-char bytes[4096];
-
 __attribute__((noinline))
 static void f(){
     printf("\tf defined on %s:%d 0x%lx\n", __FILE__, __LINE__, (unsigned long int)f);
 }
+
+char bytes[4096];
+
 
 static struct game_state *game_init() {
     struct game_state *state = malloc(sizeof(*state));

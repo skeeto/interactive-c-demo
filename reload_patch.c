@@ -188,8 +188,11 @@ static void patch_so_symbols(void *so_handle){
         int ret = sscanf(line, "%lx-%lx %4c %lx %x:%x %lu %s", 
                          &memory_beg, &memory_end, rwxp, &offset, &dev_major, &dev_minor, &inode, path);
 
-        // Look for r/w [heap] sections
-        if(ret == 8 && rwxp[0] == 'r' && rwxp[1] == 'w' && rwxp[2] == '-' && !strcmp(path, "[heap]")){
+        // Look for r/w [heap] or anonymous mmap mappings
+        bool is_heap = (ret == 8 && rwxp[0] == 'r' && rwxp[1] == 'w' && rwxp[2] == '-' && !strcmp(path, "[heap]"));
+        bool is_anonymous_mapping = (ret == 7 && rwxp[0] == 'r' && rwxp[1] == 'w' && rwxp[2] == '-');
+
+        if(is_heap || is_anonymous_mapping){
             // Interpret contents of memory segment as a pointer and see if it falls inside the library range
             void **first = (void **)memory_beg;
             void **last = (void **) ((Byte *)memory_end - sizeof(void *));
